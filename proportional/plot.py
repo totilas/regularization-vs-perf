@@ -11,13 +11,13 @@ from typing import List, Optional
 
 import typer
 from typing_extensions import Annotated
-from typer_config import use_yaml_config
+from typer_config import use_toml_config
 
 app = typer.Typer()
 
 
 @app.command()
-@use_yaml_config()
+@use_toml_config()
 def main( output: str,
          to_plot: Annotated[Optional[List[str]], typer.Option()] = None,
          legends: Annotated[Optional[List[str]], typer.Option()] = None):

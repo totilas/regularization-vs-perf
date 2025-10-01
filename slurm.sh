@@ -10,9 +10,9 @@
 #SBATCH --time=3-10:00:00
 #SBATCH --output=%x_%j.out
 #SBATCH --error=%x_%j.err
-# print the start time
 
+# print the start time
 date
-uv run performative/high/perforidge.py --config performative/high/runs.yml
+uv run proportional/perforidge.py --config proportional/runs.toml
 # print the end time
 date
