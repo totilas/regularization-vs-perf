@@ -55,8 +55,7 @@ def main(unbalanced:bool,
         unbalanced = param["unbalanced"]
         b = param["b"]
         c = param["c"]
-    
-
+        print(param)
     return None
 
     p = int(n * kappa)

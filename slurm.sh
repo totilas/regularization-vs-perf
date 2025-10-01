@@ -8,8 +8,8 @@
 #SBATCH --nodes=1
 #SBATCH --mem=96G
 #SBATCH --time=3-10:00:00
-#SBATCH --output=%x_%j.out
-#SBATCH --error=%x_%j.err
+#SBATCH --output=out/%x_%j.out
+#SBATCH --error=out/%x_%j.err
 
 # print the start time
 date
