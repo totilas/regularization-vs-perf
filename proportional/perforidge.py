@@ -1,16 +1,37 @@
 # perfo_runs.py
 import os
 import numpy as np
-
+import itertools
 import typer
 from typer_config import use_yaml_config
+
+def _toeplitz_rect(g, h, gamma):
+    i = np.arange(g)[:, None]
+    j = np.arange(h)[None, :]
+    return gamma ** np.abs(i - j)
+
+def sample_X(rng, rows, rho, gamma,g,h):
+    if np.isclose(rho, 0) and np.isclose(gamma,0):
+        return rng.standard_normal((rows, g+h))
+    Tg = _toeplitz_rect(g, g, gamma)
+    Th = _toeplitz_rect(h, h, gamma)
+    Tgh = _toeplitz_rect(g, h, gamma)
+    S = np.block([[Tg, rho * Tgh], [rho * Tgh.T, Th]])
+    L = np.linalg.cholesky(S)
+    assert np.isfinite(L).all()
+
+    Z = rng.standard_normal((rows, g + h))
+    return Z @ L.T
+
+
+
 
 app = typer.Typer()
 
 
 @app.command()
 @use_yaml_config()
-def main(unbalanced:bool,
+def main(unbalanced:float,
         n: int,
         kappa: float,
         lam_start: float,
@@ -32,7 +53,7 @@ def main(unbalanced:bool,
         grid_parameters = {
             "sigma": [.2, .5, 1],
             "kappa": [1.1, 2],
-            "rho": [.5, .8],
+            "rho": [0, .5],
             "gamma": [0, .3, .6, .9],
             "unbalanced": [0.5, .8],
             "b": [0, 0.2],
@@ -56,23 +77,19 @@ def main(unbalanced:bool,
         b = param["b"]
         c = param["c"]
         print(param)
-    return None
 
     p = int(n * kappa)
     assert p % 2 == 0
-    if unbalanced:
-        h = int(p * .8)    
-    else:
-        h = p//2
+    h = int(p * unbalanced)    
     g = p - h
+
         
     dvec = np.zeros(p, dtype=np.float64)
     dvec[: g] = b
     dvec[g :] = c
     
     # performative diagonal D: first half 0.2, rest 0.0 (apply with elementwise multiply)
-
-    print(f"Hello sigma_{sigma}_kappa_{kappa}_rho_{rho}_{gamma}_{unbalanced}")
+    print(f"Hello sigma_{sigma}_kappa_{kappa}_rho_{rho}_gamma_{gamma}_u_{unbalanced}_b_{b}_c_{c}")
 
 
     sigma2 = sigma**2
@@ -84,52 +101,6 @@ def main(unbalanced:bool,
     os.makedirs(outdir, exist_ok=True)
     I_n = np.eye(n)
     lams = np.arange(lam_start, lam_stop, lam_step, dtype=np.float64)
-
-
-
-
-    def sample_X(rng, rows, p, rho, gamma, unbalanced):
-        if b == 0 and c== 0 and gamma == 0:
-            return rng.standard_normal((rows, p))
-        else:
-            # TODO
-            return rng.standard_normal((rows, p))
-        # h = p // 2
-        # Z1 = rng.standard_normal((rows, h))
-        # Z2 = rng.standard_normal((rows, h))
-        # X_left  = Z1
-        # X_right = rho * Z1 + np.sqrt(1 - rho**2) * Z2
-        # return np.concatenate([X_left, X_right], axis=1)
-    
-    # TODO
-    # elif covariance == "id":
-    #     def sample_X(rng, rows, p, rho):
-            
-        
-    # elif covariance == "unbalanced":
-    #     def sample_X(rng, rows, p, rho):
-    #         Z1 = rng.standard_normal((rows, g))
-    #         Z2 = rng.standard_normal((rows, h))
-    #         Xl = Z1
-    #         Xr = np.empty((rows, h))
-    #         Xr[:, :g] = rho * Z1 + np.sqrt(1 - rho**2) * Z2[:, :g]
-    #         Xr[:, g:] = Z2[:, g:]
-    #         return np.concatenate([Xl, Xr], axis=1) 
-        
-    # elif covariance == "toeplitz":
-    #     def gauss_cov(rng, n, S):
-    #         w, V = np.linalg.eigh(S)
-    #         L = V * np.sqrt(np.clip(w, 0, None))
-    #         Z = rng.standard_normal((n, p))
-    #         return Z @ L.T
-
-    #     def toeplitz_cov(p, rho):
-    #         i = np.arange(p)
-    #         return rho ** np.abs(i[:, None] - i[None, :])
-
-    #     def sample_X(rng, rows, p, rho):
-    #         return gauss_cov(rng, rows, toeplitz_cov(p, rho))
-
 
         
     def empirical_mse(theta_hat, seed):
@@ -157,7 +128,7 @@ def main(unbalanced:bool,
 
         for s in range(1, steps + 1):
             # fresh correlated X, eps each step
-            X = sample_X(rng, n, p, rho)
+            X = sample_X(rng, n, rho, gamma, g, h)
             eps = sigma * rng.standard_normal(n)
             y_base = X @ theta_star + eps
 
@@ -185,7 +156,7 @@ def main(unbalanced:bool,
                 d = theta_prev[:, i] - theta_star
                 R[i] = (d @ d) + sigma2
 
-        np.savez(os.path.join(outdir, f"run_{name}_{rid}.npz"),
+        np.savez(os.path.join(outdir, f"run_sigma_{sigma}_kappa_{kappa}_rho_{rho}_{gamma}_{unbalanced}_{r}_{rid}.npz"),
                 lambdas=lams, risks=R, run=rid, n=n, p=p,
                 sigma2=sigma2, steps=steps, rho=rho, gamma=gamma)
 
@@ -193,7 +164,7 @@ def main(unbalanced:bool,
         one_run(seed=1234 + r, rid=r)
         print(f"Saved {os.path.join(outdir, f'run_sigma_{sigma}_kappa_{kappa}_rho_{rho}_{gamma}_{unbalanced}_{r}.npz')}")
 
-import itertools
+
 
 
 if __name__ == "__main__":

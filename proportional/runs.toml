@@ -1,15 +1,14 @@
-# name: essai
 n: 8000
 kappa: 2
-lam_start: 0.01
+lam_start: 0.001
 lam_stop: 0.5
-lam_step: 0.01
+lam_step: 0.005
 runs: 20
 steps: 5
 sigma: 0.5
-# covariance: "unbalanced"
 rho: 0.5
 b: 0
 c: 0.2
-unbalanced: true
-gamma: 0.5
+unbalanced: 0.8
+gamma: 0.
+rho: 0.

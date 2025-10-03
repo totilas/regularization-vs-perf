@@ -4,15 +4,13 @@
 #SBATCH --mail-user=ecyffers@ista.ac.at
 #SBATCH --partition=defaultp
 #SBATCH --qos=normal
-#SBATCH --ntasks=384
+#SBATCH --ntasks=288
 #SBATCH --nodes=1
-#SBATCH --mem=96G
-#SBATCH --time=3-10:00:00
-#SBATCH --output=out/%x_%j.out
-#SBATCH --error=out/%x_%j.err
+#SBATCH --mem=2G
+#SBATCH --time=3-15:00:00
+#SBATCH --output=out/slurm-%A_%a.out
+#SBATCH --error=out/slurm-%A_%a.err
 
-# print the start time
 date
 uv run proportional/perforidge.py --config proportional/runs.toml
-# print the end time
 date
