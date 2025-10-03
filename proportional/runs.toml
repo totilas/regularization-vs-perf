@@ -1,4 +1,4 @@
-n: 400
+n: 8000
 kappa: 2
 lam_start: 0.001
 lam_stop: 0.5
