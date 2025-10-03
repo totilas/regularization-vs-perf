@@ -54,7 +54,7 @@ def main(unbalanced:float,
             "sigma": [.2, .5, 1],
             "kappa": [1.1, 2],
             "rho": [0, .5],
-            "gamma": [0, .3, .6, .9],
+            "gamma": [0, .5, .9],
             "unbalanced": [0.5, .8],
             "b": [0, 0.2],
             "c": [0, 0.2]

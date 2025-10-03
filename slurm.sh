@@ -6,8 +6,8 @@
 #SBATCH --qos=normal
 #SBATCH --ntasks=288
 #SBATCH --nodes=1
-#SBATCH --mem=2G
-#SBATCH --time=3-15:00:00
+#SBATCH --mem=288G
+#SBATCH --time=3-30:00:00
 #SBATCH --output=out/slurm-%A_%a.out
 #SBATCH --error=out/slurm-%A_%a.err
 
