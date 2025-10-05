@@ -51,6 +51,18 @@ def main(unbalanced:float,
 
     outdir = "results_perfo"
 
+
+
+    param = {
+        "sigma": sigma,
+        "kappa": kappa,
+        "rho": rho,
+        "gamma": gamma,
+        "unbalanced": unbalanced,
+        "b": b,
+        "c": c,
+    }
+
     if run_id is not None:
         outdir = f"out/results_{os.getenv('SLURM_JOB_NAME', 'unkown')}_{os.getenv('SLURM_ARRAY_JOB_ID', 'unkown')}_{os.getenv('SLURM_PROCID', 'unkown')}"
         grid_parameters = {
@@ -119,7 +131,7 @@ def main(unbalanced:float,
             seen += m
         return total / seen
 
-    def one_run(seed: int, rid: int):
+    def one_run(seed: int, rid: int, param):
         rng = np.random.default_rng(seed)
 
         # theta*
@@ -160,16 +172,16 @@ def main(unbalanced:float,
                 R[i] = (d @ d) + sigma2
 
         base = "_".join(f"{k}_{v}" for k, v in sorted(param.items()))
-        filename = os.path.join(f"run_{base}_{rid}.npz")
+        filename = os.path.join(outdir, f"run_{base}_{rid}.npz")
 
-
-        np.savez(filename, lambdas=lams, risks=R, run=rid, sigma2=sigma2, steps=steps, n=n, p=p, params=params, **param)
+        assert not os.path.exists(filename)
+        np.savez(filename, lambdas=lams, risks=R, run=rid, sigma2=sigma2, steps=steps, n=n, p=p, param=param, **param)
 
         return filename
 
 
     for r in range(1, runs + 1):
-        filename = one_run(seed=1234 + r, rid=r)
+        filename = one_run(seed=1234 + r, rid=r, param=param)
         print(f"Saved {filename}")
 
 
