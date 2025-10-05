@@ -49,7 +49,10 @@ def main(unbalanced:float,
 
     run_id = os.getenv("SLURM_ARRAY_TASK_ID", None)
 
+    outdir = "results_perfo"
+
     if run_id is not None:
+        outdir = f"out/results_{os.getenv('SLURM_JOB_NAME', 'unkown')}_{os.getenv('SLURM_ARRAY_JOB_ID', 'unkown')}_{os.getenv('SLURM_PROCID', 'unkown')}"
         grid_parameters = {
             "sigma": [.2, .5, 1],
             "kappa": [1.1, 2],
@@ -97,7 +100,7 @@ def main(unbalanced:float,
     use_test = False         # True -> empirical test MSE; False -> analytic ||θ̂-θ*||^2 + σ^2
     n_test = 10**5
     test_chunk = 20000
-    outdir = "out/results_perfo"
+    
     os.makedirs(outdir, exist_ok=True)
     I_n = np.eye(n)
     lams = np.arange(lam_start, lam_stop, lam_step, dtype=np.float64)
