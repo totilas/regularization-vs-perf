@@ -9,8 +9,8 @@
 #SBATCH --array=0-288%96
 #SBATCH --mem=288G
 #SBATCH --time=3-30:00:00
-#SBATCH --output=out/slurm-%A_%a.out
-#SBATCH --error=out/slurm-%A_%a.err
+#SBATCH --output=out/slurm-%x-%A_%a-%n-%t.out
+#SBATCH --error=out/slurm-%x-%A_%a-%n-%t.err
 
 
 date
