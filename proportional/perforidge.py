@@ -159,13 +159,18 @@ def main(unbalanced:float,
                 d = theta_prev[:, i] - theta_star
                 R[i] = (d @ d) + sigma2
 
-        np.savez(os.path.join(outdir, f"run_sigma_{sigma}_kappa_{kappa}_rho_{rho}_gamma_{gamma}_unb_{unbalanced}_{r}.npz"),
-                lambdas=lams, risks=R, run=rid, n=n, p=p,
-                sigma2=sigma2, steps=steps, rho=rho, gamma=gamma)
+        base = "_".join(f"{k}_{v}" for k, v in sorted(param.items()))
+        filename = os.path.join(f"run_{base}_{rid}.npz")
+
+
+        np.savez(filename, lambdas=lams, risks=R, run=rid, sigma2=sigma2, steps=steps, n=n, p=p, params=params, **param)
+
+        return filename
+
 
     for r in range(1, runs + 1):
-        one_run(seed=1234 + r, rid=r)
-        print(f"Saved {os.path.join(outdir, f'run_sigma_{sigma}_kappa_{kappa}_rho_{rho}_gamma_{gamma}_unb_{unbalanced}_{r}.npz')}")
+        filename = one_run(seed=1234 + r, rid=r)
+        print(f"Saved {filename}")
 
 
 
