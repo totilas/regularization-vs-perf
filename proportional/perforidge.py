@@ -97,7 +97,7 @@ def main(unbalanced:float,
     use_test = False         # True -> empirical test MSE; False -> analytic ||θ̂-θ*||^2 + σ^2
     n_test = 10**5
     test_chunk = 20000
-    outdir = "results_perfo"
+    outdir = "out/results_perfo"
     os.makedirs(outdir, exist_ok=True)
     I_n = np.eye(n)
     lams = np.arange(lam_start, lam_stop, lam_step, dtype=np.float64)

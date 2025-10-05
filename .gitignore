@@ -1,2 +1,10 @@
 out/*
 !out/.gitkeep
+
+get-slurm-data.sh
+real/fig4a/*
+real/fig4b/*
+real/fig4c/*
+
+results_perfo/*
+small_results_perfo/*
