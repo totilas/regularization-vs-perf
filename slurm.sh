@@ -6,7 +6,7 @@
 #SBATCH --qos=normal
 #SBATCH --ntasks=1
 #SBATCH --nodes=1
-#SBATCH --array=0-288%96
+#SBATCH --array=0-287%96
 #SBATCH --mem=288G
 #SBATCH --time=3-30:00:00
 #SBATCH --output=out/slurm-%x-%A_%a-%n-%t.out
