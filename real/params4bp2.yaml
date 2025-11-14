@@ -1,12 +1,12 @@
 seed: 0
-out_dir: fig4c
-on_perfo: False
+out_dir: fig4bperf
+on_perfo: True
 
-dataset: housing
+dataset: lsac
 
 
 lambda_min: 0
-lambda_max: 0.3
+lambda_max: 0.5
 num_lambda: 100
 
 n_splits: 5
@@ -15,5 +15,5 @@ steps: 4
 
 noise_std: 0.0
 
-y_min: .38
-y_max: .55
+y_min: .625
+y_max: .725

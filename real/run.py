@@ -1,7 +1,6 @@
 import numpy as np
 from sklearn.linear_model import Ridge, LinearRegression
 import typer
-from typing_extensions import Annotated
 from typer_config import use_yaml_config
 import os
 from housing import load_housing
@@ -49,7 +48,8 @@ def main(seed: int,
         train_size: int,
         steps: int,
         y_min:float,
-        y_max:float):
+        y_max:float,
+        on_perfo:bool):
      
     outdir = "results_perfo"
     os.makedirs(outdir, exist_ok=True)
@@ -142,7 +142,12 @@ def main(seed: int,
 
             test_idx = folds[-1]
             X_test = X_all[test_idx, :]
-            y_test = y_all[test_idx]
+            if on_perfo:
+                print("indeed")
+                y_base = y_all[test_idx]
+                y_test = synth_labels_y_plus_perf(X_test, theta_prev, b_vec, perf_mask, y_base)
+            else:
+                y_test = y_all[test_idx]
             y_hat = X_test @ theta_prev
             mse = float(((y_test - y_hat) ** 2).mean())
             if lam == 0:

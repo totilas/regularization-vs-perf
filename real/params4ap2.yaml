@@ -1,7 +1,6 @@
 seed: 0
-out_dir: fig4a
-on_perfo: False
-
+out_dir: fig4aperf
+on_perfo: True
 dataset: lsac
 
 
@@ -15,5 +14,5 @@ steps: 4
 
 noise_std: 0.0
 
-y_min: 0.78
+y_min: 0.74
 y_max: .9

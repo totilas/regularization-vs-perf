@@ -1,6 +1,6 @@
 seed: 0
-out_dir: fig4c
-on_perfo: False
+out_dir: fig4cperf
+on_perfo: True
 
 dataset: housing
 
@@ -15,5 +15,5 @@ steps: 4
 
 noise_std: 0.0
 
-y_min: .38
-y_max: .55
+y_min: .325
+y_max: .5
