@@ -7,7 +7,7 @@ runs: 20
 steps: 5
 sigma: 0.2
 rho: 0.
-b: 0.2
+b: 0.
 c: 0
 unbalanced: 0.5
 gamma: 0.

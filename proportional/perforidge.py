@@ -43,13 +43,14 @@ def main(unbalanced:float,
         gamma: float,
         rho: float,
         b: float,
-        c: float):
+        c: float,
+        on_perfo: bool):
     
     # To use with slurm
 
     run_id = os.getenv("SLURM_ARRAY_TASK_ID", None)
 
-    outdir = "results_perfo"
+    outdir = "results_perfosame"
 
 
 
@@ -61,6 +62,7 @@ def main(unbalanced:float,
         "unbalanced": unbalanced,
         "b": b,
         "c": c,
+        "onperfo": on_perfo
     }
 
     if run_id is not None:
@@ -104,7 +106,7 @@ def main(unbalanced:float,
     dvec[g :] = c
     
     # performative diagonal D: first half 0.2, rest 0.0 (apply with elementwise multiply)
-    print(f"Hello sigma_{sigma}_kappa_{kappa}_rho_{rho}_gamma_{gamma}_u_{unbalanced}_b_{b}_c_{c}")
+    print(f"Hello sigma_{sigma}_kappa_{kappa}_rho_{rho}_gamma_{gamma}_u_{unbalanced}_b_{b}_c_{c}_perfo_{on_perfo}")
 
 
     sigma2 = sigma**2
@@ -140,6 +142,7 @@ def main(unbalanced:float,
 
         # per-λ estimator carried across steps
         theta_prev = np.zeros((p, lams.size), dtype=np.float64)
+        theta_prevprev = np.zeros((p, lams.size), dtype=np.float64)
 
         for s in range(1, steps + 1):
             # fresh correlated X, eps each step
@@ -154,6 +157,7 @@ def main(unbalanced:float,
                 y = y_base if s == 1 else y_base + X @ (dvec * theta_prev[:, i])
                 w = np.linalg.solve(G + lam * I_n, y / float(p))
                 theta_new[:, i] = X.T @ w
+            theta_prevprev = theta_prev
             theta_prev = theta_new
 
         # final-step risks
@@ -168,8 +172,12 @@ def main(unbalanced:float,
                 R[i] = empirical_mse(theta_hat, seed_test)
         else:
             for i in range(lams.size):
-                d = theta_prev[:, i] - theta_star
+                if not on_perfo:
+                    d = theta_prev[:, i] - theta_star
+                else:
+                    d = theta_prev[:, i] - (theta_star + dvec * theta_prevprev[:, i])
                 R[i] = (d @ d) + sigma2
+
 
         base = "_".join(f"{k}_{v}" for k, v in sorted(param.items()))
         filename = os.path.join(outdir, f"run_{base}_{rid}.npz")

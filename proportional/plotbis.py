@@ -29,12 +29,8 @@ from collections import defaultdict
 
 
 def format_label(s: str) -> str:
-    s = s.replace("b_", "b=")\
-         .replace("gamma_", r"\gamma=")\
-         .replace("kappa_", r"\kappa=")\
-         .replace("rho_", r"\rho=")\
-         .replace("sigma_", r"\sigma=")\
-         .replace("unbalanced_", "g=")\
+    s = s.replace("b_", "b=")
+
     
     parts = s.split("_")
     return ",".join(parts)
@@ -47,45 +43,44 @@ def main(npz_directory: Path):
     palette = sns.color_palette("husl", 8)
 
 
-    c_0 = defaultdict(list)
-    c_2 = defaultdict(list)
+    b_0 = defaultdict(list)
+    b_2 = defaultdict(list)
     for file in sorted(npz_directory.glob(f"run_*.npz")):
         file = np.load(file, allow_pickle=True)
         param = file["param"].item()
         del param["b"]
         if np.isclose(file["b"], 0):
             print("ici")
-            c_0["_".join(f"{k}_{v}" for k, v in sorted(param.items()))].append(file)
+            b_0["_".join(f"{k}_{v}" for k, v in sorted(param.items()))].append(file)
         elif np.isclose(file["b"], 0.2):
             print("la")
-            c_2["_".join(f"{k}_{v}" for k, v in sorted(param.items()))].append(file)
+            b_2["_".join(f"{k}_{v}" for k, v in sorted(param.items()))].append(file)
         else:
             assert False
 
-    assert set(c_0.keys()) == set(c_2.keys()), set(c_0.keys()).symmetric_difference(set(c_2.keys()))
+    assert set(b_0.keys()) == set(b_2.keys()), set(b_0.keys()).symmetric_difference(set(b_2.keys()))
 
     intersting_keys = []
-    for k in c_0.keys():
-        f0 = c_0[k]
-        if k not in c_2:
+    for k in b_0.keys():
+        f0 = b_0[k]
+        if k not in b_2:
             continue
-        f2 = c_2[k]
+        f2 = b_2[k]
 
         risks2 = np.mean(np.vstack([f["risks"] for f in f2]), axis=0)
         risks0 = np.mean(np.vstack([f["risks"] for f in f0]), axis=0)
         assert risks2.shape == (len(f0[0]["risks"]),)
 
-        
-        if np.min(risks0) > np.min(risks2):
-            intersting_keys.append(k)
-            print(k)
+        intersting_keys.append(k)
+        print(k)
 
     # Perform the plots for the intersting keys
 
     fig, ax = plt.subplots()
     for i, k in enumerate(intersting_keys):
-        f0 = c_0[k]
-        f2 = c_2[k]
+        print("k", k)
+        f0 = b_0[k]
+        f2 = b_2[k]
 
         lam = f0[0]["lambdas"]
         n = f0[0]["n"]
@@ -99,10 +94,10 @@ def main(npz_directory: Path):
         m0 = R0.mean(axis=0)
         s0 = R0.std(axis=0, ddof=1)
 
-        ax.plot(lam, m2, marker="x",  color=palette[i%8], markevery=5, label=fr"${format_label(k)}$")
+        ax.plot(lam, m2, marker="x",  color=palette[0], markevery=1, label=fr"$b=.2$")
         ax.fill_between(lam, m2 - s2, m2 + s2, color=palette[i%8], alpha=0.2)
 
-        ax.plot(lam, m0, marker="o",  color=palette[i%8], markevery=5)
+        ax.plot(lam, m0, marker="o",  color=palette[2], markevery=1, label=fr"$b=0$")
         ax.fill_between(lam, m0 - s0, m0 + s0, color=palette[i%8], alpha=0.2)
 
 
@@ -112,8 +107,8 @@ def main(npz_directory: Path):
     #ax.set_ylim(0, 2)
     #ax.set_xlim(0.005, 0.2)
     ax.legend(loc="upper left")
-    #ax.xaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-    #ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+    ax.xaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+    ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
 
 
     ax.xaxis.label.set_fontsize(14)
@@ -128,8 +123,8 @@ def main(npz_directory: Path):
         leg.set_title(leg.get_title().get_text(), prop={"size": 13})
 
     #fig.tight_layout(rect=[0, 0, 1.85, 1])
-    fig.savefig(f"risk_.pdf")
-    print(f"Saved risk_.pdf")
+    fig.savefig(f"risk_p.pdf")
+    print(f"Saved risk_p.pdf")
 
 if __name__ == "__main__":
     app()
