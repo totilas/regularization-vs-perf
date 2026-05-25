@@ -1,0 +1,15 @@
+# Legacy environment for neural_network_credit/.
+# Keep this separate from the main repository environment.
+# Recommended interpreter: Python 3.9.x.
+
+numpy==1.23.5
+scipy==1.10.1
+pandas==1.5.3
+scikit-learn==1.2.2
+matplotlib==3.7.5
+seaborn==0.12.2
+torch==2.0.1
+
+# WhyNot 0.12.0 depends on gym==0.21.0 and old packaging assumptions.
+gym==0.21.0
+whynot==0.12.0
